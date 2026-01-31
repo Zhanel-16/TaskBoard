@@ -20,37 +20,39 @@
                 </div>
                 
             </form>
-            <!-- mostrar eso si esta registrado -->
-            <!-- <select id="filtro">
-                <option value="todas">Todas las tareas</option>
-                <option value="finalizadas">Solo finalizadas</option>
-                <option value="NOfinalizadas">No finalizadas</option>
-            </select> -->
         </div>
     </section>
   
 </template>
 <script setup>
+    import { useToast } from 'vue-toastification'
     import { ref, computed } from 'vue'; 
     import { registrar } from '@/servicios/autenticacion';
 import router from '@/router';
-
+import { RouterLink } from 'vue-router';
+    let toast = useToast()
     let email = ref("")
     let password = ref("")
     let confirmarPass = ref("")
     let error = ref("")
     let exito = ref("")
     let cargando = ref(false) //se activa cuando estoy buscando informacion
+    
 
     let coinciden = computed(()=>{
         return password.value === confirmarPass.value //verificar si son iguales
     })
+    
     let registrarUsuario = async()=>{
+        if(password.value.length <6 || confirmarPass.value.length < 6){
+        toast.error("La contraseña debe de tener mas de 6 caracteres, vuelve a inte")
+    }
         error.value = ""                              //resetear si tuviera antes algun valor
         exito.value = ""
         if(!coinciden.value){                         //validacion basica
+            toast.error("Contraseñas no coinciden")
             error.value = "Contraseñas no coinciden"
-            return                                    //q no siga ejecutando mas codigo, acaba ahi
+            return error.value                                 //q no siga ejecutando mas codigo, acaba ahi
         }
         cargando.value = true //true pq estoy haciendo await
         let resultado = await registrar(email.value, password.value)  // aqui el resto de validaciones
@@ -58,12 +60,16 @@ import router from '@/router';
         cargando.value = false
         console.log(resultado.usuario) 
         if (resultado.ok){
+            toast.success("registrado exist")
+           
             exito.value = `okey ✅😆 ${email.value} creado exitosamente`
             email.value = ""
             password.value = ""
             confirmarPass.value = ""
             router.push("/login")
+            
         }else{
+
             error.value = `❌ Error! ${resultado.error} `
             //limpiar formulario
             email.value = ""
