@@ -50,19 +50,16 @@ let iniciarSesion = async()=>{
     
 
     if(!usuario.emailVerified){ // si el email no esta verificado
-        toast.error("Verifica tu email") // error
+        toast.error("Verifica tu email ⚠️") // error
         return
     }else{ // si el email está verificado
         exito.value = "yes email verificado" 
-        toast.success("ok")
+        toast.success("Has iniciado sesión correctamente! ✔️")
     }
     cargando.value = false
     if(resultado.ok){                         //en resultado se guardara UN OBJETO (return de okey) 
         exito.value = `Yes!✅ ${email.value} sesion iniciada`
         router.push("/") //tareas
-        // setTimeout(()=>{
-        //     router.push("/perfil")
-        // }, 500)
     }else{
         error.value = `❌ Error!`
     }
@@ -76,6 +73,7 @@ let iniciarSesion = async()=>{
     box-sizing: border-box
 
 section
+    font-family: "SN Pro", sans-serif;
     min-height: 100vh
     background: #f2f4f8
     display: flex
@@ -91,29 +89,27 @@ section
 
     h1
         text-align: center
-        margin-bottom: 1.5rem
         color: #333
 
     form
+        font-family: "SN Pro", sans-serif;
         display: flex
         flex-direction: column
         gap: 1rem
-
         div
             display: flex
             flex-direction: column
-
             label
-                margin-bottom: 0.3rem
-                font-size: 0.9rem
-                color: #555
+                font-size: 1rem
+                color: darkgray
+                padding: 0.3rem
 
             input
+                color: darkgray
                 padding: 0.6rem
-                border: 1px solid 
+                border: 1.2px solid 
                 border-radius: 5px
                 font-size: 0.9rem
-                transition: border 0.3s
         .btn
             display: flex
             justify-content: center
@@ -122,14 +118,12 @@ section
                 margin-top: 1rem
                 padding: 0.7rem
                 width: 9rem
-                
-                background: #4f46e5
+                background: darkslateblue
                 color: white
                 border: none
                 border-radius: 5px
                 font-size: 1rem
                 cursor: pointer
-                transition: background 0.3s
         .text
             display: flex
             justify-content: center

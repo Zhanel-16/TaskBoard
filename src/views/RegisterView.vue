@@ -37,7 +37,6 @@ import { RouterLink } from 'vue-router';
     let error = ref("")
     let exito = ref("")
     let cargando = ref(false) //se activa cuando estoy buscando informacion
-    
 
     let coinciden = computed(()=>{
         return password.value === confirmarPass.value //verificar si son iguales
@@ -45,14 +44,14 @@ import { RouterLink } from 'vue-router';
     
     let registrarUsuario = async()=>{
         if(password.value.length <6 || confirmarPass.value.length < 6){
-        toast.error("La contraseña debe de tener mas de 6 caracteres, vuelve a inte")
+        toast.error("Su contraseña debe tener al menos 6 caracteres ⚠️")
     }
         error.value = ""                              //resetear si tuviera antes algun valor
         exito.value = ""
         if(!coinciden.value){                         //validacion basica
-            toast.error("Contraseñas no coinciden")
-            error.value = "Contraseñas no coinciden"
-            return error.value                                 //q no siga ejecutando mas codigo, acaba ahi
+            toast.error("Las contraseñas no coinciden, introdúzcalos de nuevo ⚠️")
+            // error.value = "Contraseñas no coinciden"
+            // return error.value                                 //q no siga ejecutando mas codigo, acaba ahi
         }
         cargando.value = true //true pq estoy haciendo await
         let resultado = await registrar(email.value, password.value)  // aqui el resto de validaciones
@@ -60,7 +59,7 @@ import { RouterLink } from 'vue-router';
         cargando.value = false
         console.log(resultado.usuario) 
         if (resultado.ok){
-            toast.success("registrado exist")
+            toast.success("Te has registrado exitosamente ✔️")
            
             exito.value = `okey ✅😆 ${email.value} creado exitosamente`
             email.value = ""
@@ -97,33 +96,30 @@ section
     width: 100%
     max-width: 400px
     border-radius: 10px
-   
-
     h1
+        font-family: "SN Pro", sans-serif;
         text-align: center
         margin-bottom: 1.5rem
         color: #333
-
     form
+        font-family: "SN Pro", sans-serif;
         display: flex
         flex-direction: column
         gap: 1rem
-
         div
             display: flex
             flex-direction: column
-
             label
-                margin-bottom: 0.3rem
-                font-size: 0.9rem
-                color: #555
+                font-size: 1rem
+                color: darkgray
+                padding: 0.3rem
 
             input
+                color: darkgray
                 padding: 0.6rem
-                border: 1px solid 
+                border: 1.2px solid 
                 border-radius: 5px
                 font-size: 0.9rem
-                transition: border 0.3s
         .btn
             display: flex
             justify-content: center
@@ -132,14 +128,12 @@ section
                 margin-top: 1rem
                 padding: 0.7rem
                 width: 9rem
-                
-                background: #4f46e5
+                background: darkslateblue
                 color: white
                 border: none
                 border-radius: 5px
                 font-size: 1rem
                 cursor: pointer
-                transition: background 0.3s
         .text
             display: flex
             justify-content: center
