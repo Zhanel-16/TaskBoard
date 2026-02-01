@@ -5,6 +5,8 @@
     <option value="todas">Todas las tareas</option>
     <option value="finalizadas">Solo finalizadas</option>
     <option value="NOfinalizadas">No finalizadas</option>
+    <option value="asignadasUsuario">Ya asignadas</option>
+    <!-- asignadas a algún usuario (tareas que ya están en el workspace de alguien) -->
   </select>
 
   <div class="container">

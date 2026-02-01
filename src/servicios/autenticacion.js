@@ -1,14 +1,15 @@
 import { auth } from "@/firebase/config"
 import { ref } from "vue"
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  sendEmailVerification
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged, 
+  sendEmailVerification,
+  updateProfile
 } from "firebase/auth"
-
 export let usuario = ref(null)
+
 onAuthStateChanged(auth, user => {
   usuario.value = user
 })
@@ -16,6 +17,9 @@ onAuthStateChanged(auth, user => {
 export let registrar = async (email, password) => {
   try {
     let cred = await createUserWithEmailAndPassword(auth, email, password)
+    
+    await sendEmailVerification(cred.user)
+    
     return { ok: true, usuario: cred }
   } catch (e) {
     return { ok: false, error: e.message }
@@ -30,36 +34,36 @@ export let login = async (email, password) => {
     return { ok: false, error: e.message }
   }
 }
+
 export let logOut = async () => {
   await signOut(auth)
 }
 
 export let estaAutenticado = ()=>{
-    //para proteger la ruta, el requisito para acceder a la ruta protegida es estar autentificar
-    return usuario.value !== null   
+  return usuario.value !== null
 }
-export let enviarEmailVerificacion = async(usuarioActual=null)=>{ //sendEmailVerification
-    try {
-        let usuario = usuarioActual || auth.currentUser //auth ya tendra us registrado si o si
-        if(usuario.emailVerified){
-            console.log("✅email verificado")
-            return{
-                ok: true,
-                message: "email verificado",
-            }
-        }
-        await sendEmailVerification(usuario, {url: window.location.origin + "/perfil"})
-        // recibe 2 param : usuario y la ruta
-        //{url: window.location.origin + "/login"}  redirige a perfil(mi dashboard), origin q pille mi ruta raiz + q me mande a perfil
-        return{
-            ok: true,
-            message: "email de verificacion enviado",
-            }
-    } catch (error) {
-        console.log("❌ ha habido un problema al enviar el correo de verificacaion")
-    }
+export let emailEstaVerificado = () => {
+  return usuario.value && usuario.value.emailVerified
 }
 
+export let enviarEmailVerificacion = async()=>{
+  try {
+    let usuario = auth.currentUser
+    if(!usuario){
+      console.log("❌ No hay usuario")
+      return{ ok: false, message: "No hay usuario" }
+    }
+    
+    if(usuario.emailVerified){
+      return{ ok: true, message: "email ya verificado" }
+    }
+    await sendEmailVerification(usuario)
+    return{ ok: true, message: "email enviado" }
+  } catch (error) {
+    console.log("❌ error enviar email:", error)
+    return{ ok: false, message: error.message }
+  }
+}
 // //funcion para obtener usuario, si usuario existe
 // export let obtenerUsuario = () =>{
 //     return usuario.value

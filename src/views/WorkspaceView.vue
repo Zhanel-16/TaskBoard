@@ -1,7 +1,7 @@
 <template>
-  <h1>Workspace</h1>
+  <h1>WORKSPACE</h1>
   <!-- mis tareas, cerrar sesion -->
-  <div v-if="!tarea">
+  <div v-if="!tarea" class="texto">
     <p>No tienes tareas asignadas... 💭</p>
   </div>
   <div v-else class="card">
@@ -10,6 +10,7 @@
 </div>
 
   <button @click="cerrarSesion" class="btnn">Cerrar sesion</button>
+  <router-link to="/" class="btnnt">Volver</router-link>
 </template>
 
 <script setup>
@@ -49,7 +50,10 @@
 h1
   text-align: center
   margin-bottom: 1.5rem
-
+.texto
+  display: flex
+  justify-content: center
+  align-items: center
 .card
   background: white
   border: 1px solid lightgray
@@ -67,6 +71,22 @@ h1
   padding: 0.7rem
   width: 9rem
   background: #C72B2B
+  color: white
+  border: none
+  border-radius: 6px
+  font-size: 1rem
+  cursor: pointer
+.btnnt
+  margin-left: auto
+  margin-right: auto
+  display: flex
+  align-items: center
+  justify-content: center
+  margin-top: 1rem
+  padding: 0.7rem
+  width: 9rem
+  background: darkslateblue
+  text-decoration: none
   color: white
   border: none
   border-radius: 6px
