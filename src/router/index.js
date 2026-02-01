@@ -16,34 +16,30 @@ const router = createRouter({
     {path: "/", component: TareasView, meta:{requiereLogin:true}}
   ],
 })
-
-router.beforeEach((to, from, next)=>{
-  if(to.meta.requiereLogin){
-    if(estaAutenticado()){
-      // ifemail esta verif next ==> else ==> q se vaya a login
-      // if()
-      next() //si esta login le dejo pasar /login?
-      
-    }else{
-      next("/login") //q se vaya a register 
+router.beforeEach((to, from, next) => {
+  if (to.meta.requiereLogin) {
+    if (estaAutenticado()) {
+      next()
+    } else {
+      next("/login")
     }
-  }else{
+  } else {
     next()
   }
 })
 
-// router.beforeEach((to, from, next) => {
-//   let user = obtenerUsuario()
 
-//   if (to.meta.requiereLogin) {
-//     if (!user) {
-//       next("/login")
-//     } else if (!user.emailVerified) {
-//       next("/login")
-//     } else {
-//       next()
+// router.beforeEach((to, from, next)=>{
+//   if(to.meta.requiereLogin){
+//     if(estaAutenticado()){
+//       // ifemail esta verif next ==> else ==> q se vaya a login
+//       // if()
+//       next() //si esta login le dejo pasar /login?
+      
+//     }else{
+//       next("/login") //q se vaya a register 
 //     }
-//   } else {
+//   }else{
 //     next()
 //   }
 // })

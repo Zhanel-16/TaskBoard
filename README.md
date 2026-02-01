@@ -36,11 +36,7 @@ Cada tarea muestra:
 
 ## Firestore (estructura)
 Se usa una colección "users"
-
-Cada documento representa a un usuario y su id es el `uid` de Firebase Auth.
-
-Ejemplo:
-
+Lista ==> tasks que guarda un objeto que ==> contiene completed(true/false), id(number), todo(string)
 
 ---------------------------------------------------------------------------------------------
 # Proyecto-Final-DWEC

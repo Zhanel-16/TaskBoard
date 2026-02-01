@@ -121,7 +121,7 @@ section
                 background: darkslateblue
                 color: white
                 border: none
-                border-radius: 5px
+                border-radius: 6px
                 font-size: 1rem
                 cursor: pointer
         .text

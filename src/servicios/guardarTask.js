@@ -1,63 +1,114 @@
-import {db, auth} from "@/firebase/config"                        //ESTE ARCHIVO TMB LO PUEDO UTILIZAR EN EX
-import {      //importar funciones de f
-    doc,      //doc hace referencia al documento(registro)
-    setDoc,   //AÑADIR a bd ==> establecer valores dentro de un doc 
-    getDoc,   //recoge   OBTENER de bd
-    updateDoc, //actualizar
-    arrayUnion
+import { db, auth } from "@/firebase/config"
+
+import {
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  arrayUnion,
+  collection,
+  getDocs
 } from "firebase/firestore"
-import { usuario } from "./autenticacion"
-export let guardarPerfilUsuario = async (usuarioId, datosPerfil) => {
-  try {
-    let docRef = doc(db, "usuarios", usuarioId)
 
-    await setDoc(docRef, {
-      ...datosPerfil,
-      tasks: [] // guardar tareas de usuario
-    })
 
-    return { ok: true }
-  } catch (error) {
-    return { ok: false, error: error.message }
-  }
+// ==============================
+// COMPROBAR SI TAREA YA ASIGNADA
+// ==============================
+export const tareaYaAsignada = async (taskId) => {
+
+  const usersRef = collection(db, "users")
+  const snap = await getDocs(usersRef)
+
+  let ocupada = false
+
+  snap.forEach(docu => {
+
+    const tareas = docu.data().tasks || []
+
+    const existe = tareas.find(t => t.id === taskId)
+
+    if (existe) {
+      ocupada = true
+    }
+  })
+
+  return ocupada
 }
 
-export let obtenerPerfilUsuario = async (usuarioId) => {
-  try {
-    let docRef = doc(db, "usuarios", usuarioId)
-    let docSnap = await getDoc(docRef)
 
-    if (docSnap.exists()) {
+
+// ==============================
+// AGREGAR TAREA AL USUARIO
+// ==============================
+export const agregarTareaUsuario = async (tarea) => {
+
+  try {
+
+    const user = auth.currentUser
+
+    if (!user) {
+      return { ok: false, error: "No autenticado" }
+    }
+
+
+    // ❌ No permitir finalizadas
+    if (tarea.completed === true) {
       return {
-        ok: true,
-        perfil: {
-          id: docSnap.id,
-          ...docSnap.data()
-        }
+        ok: false,
+        error: "No se pueden añadir tareas finalizadas"
       }
     }
 
-    return { ok: false }
-  } catch (error) {
-    return { ok: false, error: error.message }
-  }
-}
-export let agregarTareaUsuario = async (tarea) => {
-  try {
-    let uid = auth.currentUser.uid
-    let docRef = doc(db, "usuarios", uid)
 
-    // comprobar si el documento del usuario existe
-    let snap = await getDoc(docRef)
+    // ❌ Comprobar si ya está asignada
+    const ocupada = await tareaYaAsignada(tarea.id)
 
-    if (!snap.exists()) { //si no existe ==> crear 
-      await setDoc(docRef, {
-        email: auth.currentUser.email,
-        tasks: []
-      })
+    if (ocupada) {
+      return {
+        ok: false,
+        error: "Esta tarea ya está asignada a otro usuario"
+      }
     }
 
-    await updateDoc(docRef, {
+
+    const uid = user.uid
+    const userRef = doc(db, "users", uid)
+
+    const snap = await getDoc(userRef)
+
+
+    // Crear doc si no existe
+    if (!snap.exists()) {
+
+      await setDoc(userRef, {
+        tasks: []
+      })
+
+    }
+
+
+    let tareasActuales = []
+
+    if (snap.exists()) {
+      tareasActuales = snap.data().tasks || []
+    }
+
+
+    // ❌ No repetir en el mismo user
+    const repetida = tareasActuales.find(
+      t => t.id === tarea.id
+    )
+
+    if (repetida) {
+      return {
+        ok: false,
+        error: "Ya tienes esta tarea"
+      }
+    }
+
+
+    // ✅ Guardar
+    await updateDoc(userRef, {
       tasks: arrayUnion({
         id: tarea.id,
         todo: tarea.todo,
@@ -65,31 +116,132 @@ export let agregarTareaUsuario = async (tarea) => {
       })
     })
 
+
     return { ok: true }
+
+
   } catch (error) {
-    return { ok: false, error: error.message }
+
+    console.log("❌ Firestore:", error)
+
+    return {
+      ok: false,
+      error: error.message
+    }
   }
 }
 
-export let obtenerTareasUsuario = async () => {
+
+
+// ==============================
+// OBTENER TAREAS DEL USUARIO
+// ==============================
+export const obtenerTareasUsuario = async () => {
+
   try {
-    let uid = auth.currentUser.uid
-    let docRef = doc(db, "usuarios", uid)
-    let snap = await getDoc(docRef)
+
+    const user = auth.currentUser
+
+    if (!user) {
+      return { ok: false, error: "No autenticado" }
+    }
+
+
+    const docRef = doc(db, "users", user.uid)
+
+    const snap = await getDoc(docRef)
+
 
     if (snap.exists()) {
+
       return {
         ok: true,
         tareas: snap.data().tasks || []
       }
+
     }
 
-    return { ok: true, tareas: [] }
+
+    return {
+      ok: true,
+      tareas: []
+    }
+
+
   } catch (error) {
-    return { ok: false, error: error.message }
+
+    console.log("❌ Firestore:", error)
+
+    return {
+      ok: false,
+      error: error.message
+    }
   }
 }
 
 
+// import { db, auth } from "@/firebase/config"
+// import {
+//   doc,
+//   setDoc,
+//   getDoc,
+//   updateDoc,
+//   arrayUnion
+// } from "firebase/firestore"
 
+// export const agregarTareaUsuario = async (tarea) => {
+//   try {
+//     const user = auth.currentUser
+//     if (!user) {
+//       return { ok: false, error: "Usuario no autenticado" }
+//     }
+//     const uid = user.uid
+//     const docRef = doc(db, "users", uid)
+
+//     const snap = await getDoc(docRef)
+
+//     if (!snap.exists()) {
+//       await setDoc(docRef, {
+//         tasks: []
+//       })
+//     }
+//     if (tarea.completed === true) {
+//       return { ok: false, error: "No se puede añadir tareas finalizadas"}
+//     }
+
+//     await updateDoc(docRef, {
+//       tasks: arrayUnion({
+//         id: tarea.id,
+//         todo: tarea.todo,
+//         completed: tarea.completed
+//       })
+//     })
+//     return { ok: true }
+//   } catch (error) {
+//     console.log("❌ Firestore ⚠️⚠️:", error)
+//     return { ok: false, error: error.message }
+//   }
+// }
+
+// export const obtenerTareasUsuario = async () => {
+//   try {
+//     const user = auth.currentUser
+//     if (!user) {
+//       return { ok: false, error: "No autenticado" }
+//     }
+//     const docRef = doc(db, "users", user.uid)
+//     const snap = await getDoc(docRef)
+
+//     if (snap.exists()) {
+//       return {
+//         ok: true,
+//         tareas: snap.data().tasks || []
+//       }
+//     }
+//     return { ok: true, tareas: [] }
+//   } catch (error) {
+//     console.log("❌ Firestore:", error)
+//     return { ok: false, error: error.message }
+//   }
+// }
 
